@@ -133,13 +133,39 @@ nav.tabs button[aria-selected="true"] { background: var(--ink); color: var(--bg)
 .fact b { font-family: var(--serif); font-weight: 400; font-size: 30px; line-height: 1; font-variant-numeric: tabular-nums }
 .fact span { font-size: 12.5px; color: var(--muted) }
 
+.drinks { display: grid; gap: 10px; padding: 14px; border-radius: 18px; background: color-mix(in srgb, var(--warn-soft) 55%, var(--surface-solid)); border: 1px solid var(--line) }
+.drinks-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px }
+.drinks-head .total { font-family: var(--serif); font-size: 22px; line-height: 1; color: var(--warn); font-variant-numeric: tabular-nums }
+.drink-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px }
+.drink { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 6px 6px 6px 12px; border-radius: 14px; background: var(--surface-solid); border: 1px solid var(--line) }
+.drink .nm { font-weight: 400; overflow-wrap: anywhere }
+.stepper { display: flex; align-items: center; gap: 2px }
+.stepper button { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface-solid); font-size: 18px; line-height: 1; display: grid; place-items: center; padding: 0; -webkit-tap-highlight-color: transparent }
+.stepper button:disabled { opacity: .35; cursor: default }
+.stepper .add { background: var(--warn-soft); border-color: transparent; color: var(--warn) }
+.stepper output { min-width: 22px; text-align: center; font-weight: 500; font-variant-numeric: tabular-nums }
+.drink.zero output { color: var(--muted); font-weight: 300 }
+.drinks .help { font-size: 12.5px; color: var(--muted) }
+@media (max-width: 700px) {
+  .drinks { padding: 12px 10px }
+  .drink-list { grid-template-columns: repeat(2, minmax(0, 1fr)) }
+  .drink { grid-template-columns: minmax(0, 1fr); padding: 8px 8px 8px 12px; gap: 4px }
+  .stepper { justify-content: space-between }
+}
+.types { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px }
+.types li { display: grid; grid-template-columns: 84px minmax(0, 1fr) 40px; gap: 10px; align-items: center; font-size: 14px }
+.types .bar { height: 8px }
+.types .bar span { background: var(--warn); border-radius: 999px }
+.types b { font-weight: 500; text-align: right; font-variant-numeric: tabular-nums }
+
 /* Calendar */
 .cal-head { display: flex; align-items: center; justify-content: space-between; gap: 8px }
 .cal-head .btn { min-width: 40px; font-size: 18px; line-height: 1; padding: 6px 12px }
 .grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px }
 .grid .wd { text-align: center; font-size: 11px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); padding-bottom: 2px }
 .cell { aspect-ratio: 1; border-radius: 14px; border: 1px solid var(--line); background: color-mix(in srgb, var(--surface-solid) 70%, transparent); display: grid; place-items: center;
-  font-family: var(--serif); font-size: 20px; font-variant-numeric: tabular-nums; padding: 0; transition: transform .15s, background .2s; min-height: 36px }
+  font-family: var(--serif); font-size: 20px; font-variant-numeric: tabular-nums; padding: 0; transition: transform .15s, background .2s; min-height: 36px; align-content: center; gap: 0; line-height: 1.05 }
+.cell .c { font: 500 10.5px/1 var(--sans); opacity: .9 }
 .cell:not(:disabled):hover { transform: translateY(-1px); border-color: var(--accent) }
 .cell.sober { background: var(--ok); border-color: var(--ok); color: var(--surface-solid) }
 .cell.drinking { background: var(--warn); border-color: var(--warn); color: var(--surface-solid) }
@@ -178,7 +204,7 @@ nav.tabs button[aria-selected="true"] { background: var(--ink); color: var(--bg)
 .scrim { position: fixed; inset: 0; background: rgba(15, 30, 35, .35); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); z-index: 20 }
 .sheet { position: fixed; top: 0; right: 0; bottom: 0; width: min(480px, 100%); background: var(--surface-solid); z-index: 21; box-shadow: var(--shadow-lg);
   border-radius: 28px 0 0 28px; display: grid; grid-template-rows: auto 1fr; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px) }
-@media (prefers-reduced-motion: no-preference) { .sheet { animation: slide .3s cubic-bezier(.2, .8, .2, 1) } @keyframes slide { from { transform: translateX(40px); opacity: 0 } } }
+@media (prefers-reduced-motion: no-preference) { .sheet.enter { animation: slide .3s cubic-bezier(.2, .8, .2, 1) } @keyframes slide { from { transform: translateX(40px); opacity: 0 } } }
 @media (max-width: 520px) { .sheet { border-radius: 0 } }
 .sheet-head { display: flex; align-items: start; justify-content: space-between; gap: 12px; padding: 22px 22px 14px; border-bottom: 1px solid var(--line) }
 .sheet-head h2 { font-size: 32px }
@@ -208,6 +234,8 @@ const TABS = [
   ["settings", "Settings", '<circle cx="14" cy="6" r="2"/><path d="M4 6h8m4 0h4"/><circle cx="8" cy="12" r="2"/><path d="M4 12h2m4 0h10"/><circle cx="17" cy="18" r="2"/><path d="M4 18h11m4 0h1"/>']
 ];
 const LABEL = { sober: "Sober", drinking: "Drank" };
+/* Kinds of drink. Each counts glasses, bottles, cans or shots. */
+const DRINKS = [["beer", "Beer"], ["wine", "Wine"], ["spirits", "Spirits"], ["cocktail", "Cocktail"], ["cider", "Cider"], ["other", "Other"]];
 
 function load() {
   try {
@@ -253,11 +281,17 @@ function runs() {
   return out;
 }
 const longest = type => runs().filter(r => r.type === type).reduce((m, r) => r.n > m.n ? r : m, { n: 0 });
+const drinksOf = k => state.days[k]?.drinks || {};
+const drinkTotal = k => Object.values(drinksOf(k)).reduce((a, b) => a + b, 0);
 function countRange(from, to) {
-  const c = { sober: 0, drinking: 0, none: 0, total: 0 };
-  for (let k = from; k <= to; k = addDays(k, 1)) { c[status(k) || "none"]++; c.total++ }
+  const c = { sober: 0, drinking: 0, none: 0, total: 0, drinks: 0, byType: {} };
+  for (let k = from; k <= to; k = addDays(k, 1)) {
+    c[status(k) || "none"]++; c.total++;
+    for (const [type, n] of Object.entries(drinksOf(k))) { c.drinks += n; c.byType[type] = (c.byType[type] || 0) + n }
+  }
   return c;
 }
+function runDrinks(r) { let n = 0; for (let k = r.from; k <= r.to; k = addDays(k, 1)) n += drinkTotal(k); return n }
 function firstKey() { return Object.keys(state.days).sort()[0] }
 /* Unlogged days in the last week (not counting today), only after the first ever entry. */
 function recentGaps() {
@@ -269,7 +303,16 @@ function recentGaps() {
 
 /* ---------- actions ---------- */
 function setDay(k, v) {
-  if (v) state.days[k] = { status: v, updatedAt: new Date().toISOString() }; else delete state.days[k];
+  /* Drinks are kept when a day stays a drinking day and dropped when it becomes sober. */
+  const drinks = v === "drinking" ? state.days[k]?.drinks : undefined;
+  if (v) state.days[k] = { status: v, ...(drinks ? { drinks } : {}), updatedAt: new Date().toISOString() }; else delete state.days[k];
+  save(); render();
+}
+function addDrink(k, type, delta) {
+  const day = state.days[k] = { ...state.days[k], status: "drinking", updatedAt: new Date().toISOString() };
+  const drinks = { ...day.drinks, [type]: Math.max(0, (day.drinks?.[type] || 0) + delta) };
+  if (!drinks[type]) delete drinks[type];
+  day.drinks = drinks;
   save(); render();
 }
 function toast(msg) {
@@ -292,6 +335,16 @@ function render() {
     `<button data-tab="${id}" ${state.tab === id ? 'aria-current="page"' : ""}><svg viewBox="0 0 24 24" aria-hidden="true">${svg}</svg>${label}</button>`).join("");
   document.getElementById("main").innerHTML = { today: viewToday, calendar: viewCalendar, stats: viewStats, settings: viewSettings }[state.tab]();
   renderSheet();
+}
+function drinkPanel(k) {
+  if (status(k) !== "drinking") return "";
+  const total = drinkTotal(k), d = drinksOf(k);
+  return `<div class="drinks" aria-label="Drinks on ${longDate(k)}">
+    <div class="drinks-head"><span class="eyebrow">What did you drink?</span><span class="total">${total ? plural(total, "drink") : ""}</span></div>
+    <div class="drink-list">${DRINKS.map(([type, name]) => { const n = d[type] || 0; return `<div class="drink ${n ? "" : "zero"}"><span class="nm">${name}</span>
+      <span class="stepper"><button data-act="drink" data-day="${k}" data-type="${type}" data-d="-1" ${n ? "" : "disabled"} aria-label="One less ${name.toLowerCase()}">−</button><output aria-live="polite">${n}</output><button class="add" data-act="drink" data-day="${k}" data-type="${type}" data-d="1" aria-label="One more ${name.toLowerCase()}">+</button></span></div>` }).join("")}</div>
+    <p class="help">Count each glass, bottle, can or shot as one.</p>
+  </div>`;
 }
 const choice = (k, extra = "") => `<div class="choice ${extra}" role="group" aria-label="${longDate(k)}">${["sober", "drinking"].map(v =>
   `<button data-act="set" data-day="${k}" data-v="${v}" aria-pressed="${status(k) === v}"><span class="dot"></span>${LABEL[v]}</button>`).join("")}</div>`;
@@ -317,6 +370,7 @@ function viewToday() {
     <div class="log">
       <div class="log-head"><div class="date">${fmt(t, { weekday: "long" })} <em>${day.getDate()}</em> ${fmt(t, { month: "long" })}</div><span class="eyebrow">How was today?</span></div>
       ${choice(t)}
+      ${drinkPanel(t)}
     </div>
     ${gapNote}
   </section>
@@ -326,6 +380,7 @@ function viewToday() {
     <div class="facts">
       <div class="fact"><b>${best.n}</b><span>Longest sober streak${best.n ? ` (${shortDate(best.from)} to ${shortDate(best.to)})` : ""}</span></div>
       <div class="fact"><b>${countRange(addDays(t, -6), t).sober}</b><span>Sober, last 7 days</span></div>
+      <div class="fact"><b>${countRange(addDays(t, -6), t).drinks}</b><span>Drinks, last 7 days</span></div>
     </div>
   </section>`;
 }
@@ -339,7 +394,7 @@ function viewCalendar() {
   const cells = [...Array(lead)].map(() => `<span class="cell pad"></span>`);
   for (let d = 1; d <= days; d++) {
     const k = `${state.month}-${pad(d)}`, s = status(k);
-    cells.push(`<button class="cell ${s || ""} ${k === t ? "today" : ""}" data-act="open" data-day="${k}" ${k > t ? "disabled" : ""} aria-label="${longDate(k)}: ${LABEL[s] || "not logged"}">${d}</button>`);
+    cells.push(`<button class="cell ${s || ""} ${k === t ? "today" : ""}" data-act="open" data-day="${k}" ${k > t ? "disabled" : ""} aria-label="${longDate(k)}: ${LABEL[s] || "not logged"}${drinkTotal(k) ? `, ${plural(drinkTotal(k), "drink")}` : ""}"><span>${d}</span>${drinkTotal(k) ? `<span class="c">${drinkTotal(k)}</span>` : ""}</button>`);
   }
   const c = countRange(first, last < t ? last : t), isNow = state.month === t.slice(0, 7);
   const future = first > t;
@@ -348,7 +403,7 @@ function viewCalendar() {
       <h2>${dateOf(first).toLocaleDateString("en-GB", { month: "long", year: "numeric" })}</h2>
       <button class="btn" data-act="month" data-d="1" aria-label="Next month" ${isNow ? "disabled" : ""}>›</button></div>
     <div class="grid">${["M", "T", "W", "T", "F", "S", "S"].map(w => `<span class="wd">${w}</span>`).join("")}${cells.join("")}</div>
-    ${future ? "" : `<div class="counts"><span class="s">${plural(c.sober, "sober day")}</span><span class="d">${plural(c.drinking, "drinking day")}</span><span class="muted">${c.none} not logged</span></div>`}
+    ${future ? "" : `<div class="counts"><span class="s">${plural(c.sober, "sober day")}</span><span class="d">${plural(c.drinking, "drinking day")}${c.drinks ? `, ${plural(c.drinks, "drink")}` : ""}</span><span class="muted">${c.none} not logged</span></div>`}
     <div class="legend"><span><i class="s"></i>Sober</span><span><i class="d"></i>Drank</span><span><i class="n"></i>Not logged</span></div>
     ${isNow ? "" : `<button class="btn small" style="justify-self:start" data-act="thismonth">Back to this month</button>`}
   </section>`;
@@ -363,11 +418,20 @@ function viewStats() {
     const c = countRange(from, t), pct = n => (100 * n / c.total).toFixed(2) + "%";
     return `<div class="period"><div class="period-head"><h3>${name}</h3><span class="muted" style="font-size:13px">${sub}</span></div>
       <div class="bar" role="img" aria-label="${c.sober} sober, ${c.drinking} drinking, ${c.none} not logged"><span class="s" style="width:${pct(c.sober)}"></span><span class="d" style="width:${pct(c.drinking)}"></span></div>
-      <div class="counts"><span class="s">${c.sober} sober</span><span class="d">${c.drinking} drank</span>${c.none ? `<span class="muted">${c.none} not logged</span>` : ""}</div></div>`;
+      <div class="counts"><span class="s">${c.sober} sober</span><span class="d">${c.drinking} drank</span>${c.drinks ? `<span class="d">${plural(c.drinks, "drink")}</span>` : ""}${c.none ? `<span class="muted">${c.none} not logged</span>` : ""}</div></div>`;
   };
+  const [pName, pFrom] = periods[state.drinkPeriod ?? 1], pc = countRange(pFrom, t), maxType = Math.max(1, ...Object.values(pc.byType));
+  const typeRows = DRINKS.filter(([type]) => pc.byType[type]).sort((a, b) => pc.byType[b[0]] - pc.byType[a[0]])
+    .map(([type, name]) => `<li><span>${name}</span><span class="bar"><span style="width:${(100 * pc.byType[type] / maxType).toFixed(1)}%"></span></span><b>${pc.byType[type]}</b></li>`).join("");
+  const drinksPanel = `<section class="glass panel"><div class="period-head"><h2>What you drank</h2>
+      <div class="seg">${periods.map(([name], i) => `<button data-act="dperiod" data-i="${i}" aria-pressed="${(state.drinkPeriod ?? 1) === i}">${name === "All time" ? name : name.replace("This w", "W").replace("This m", "M")}</button>`).join("")}</div></div>
+    ${typeRows ? `<p class="muted">${plural(pc.drinks, "drink")} on ${plural(pc.drinking, "drinking day")} ${pName.toLowerCase()}${pc.drinking ? `, about ${(pc.drinks / pc.drinking).toFixed(1)} per drinking day` : ""}.</p><ul class="types">${typeRows}</ul>`
+      : `<p class="muted">No drinks counted ${pName.toLowerCase()}. On a drinking day, use the + buttons to add what you drank.</p>`}
+  </section>`;
   const s = currentStreak(), bs = longest("sober"), bd = longest("drinking");
   const all = runs().slice(-8).reverse();
   return `<section class="glass panel"><h2>Totals</h2>${periods.map(period).join("")}</section>
+  ${drinksPanel}
   <section class="glass panel"><h2>Streaks</h2>
     <div class="facts">
       <div class="fact"><b>${s ? s.n : 0}</b><span>Current${s ? (s.type === "sober" ? " sober" : " drinking") : ""} streak</span></div>
@@ -375,7 +439,7 @@ function viewStats() {
       <div class="fact"><b>${bd.n}</b><span>Longest drinking streak</span></div>
     </div>
     <div class="eyebrow">Recent streaks</div>
-    <ul class="runs">${all.map(r => `<li class="${r.type}"><span class="dot"></span><span>${LABEL[r.type]}, ${r.from === r.to ? shortDate(r.from) : `${shortDate(r.from)} to ${shortDate(r.to)}`}</span><b>${plural(r.n, "day")}</b></li>`).join("")}</ul>
+    <ul class="runs">${all.map(r => `<li class="${r.type}"><span class="dot"></span><span>${LABEL[r.type]}, ${r.from === r.to ? shortDate(r.from) : `${shortDate(r.from)} to ${shortDate(r.to)}`}</span><b>${plural(r.n, "day")}${r.type === "drinking" && runDrinks(r) ? `, ${plural(runDrinks(r), "drink")}` : ""}</b></li>`).join("")}</ul>
   </section>`;
 }
 
@@ -396,15 +460,16 @@ function viewSettings() {
   </section>`;
 }
 
-function renderSheet() {
+function renderSheet(enter) {
   const root = document.getElementById("sheetRoot"), k = state.sheet;
   if (!k) { root.innerHTML = ""; return }
   root.innerHTML = `<div class="scrim" data-act="close"></div>
-  <aside class="sheet" role="dialog" aria-modal="true" aria-label="${longDate(k)}">
+  <aside class="sheet ${enter ? "enter" : ""}" role="dialog" aria-modal="true" aria-label="${longDate(k)}">
     <div class="sheet-head"><div><div class="eyebrow">${k === todayKey() ? "Today" : k === addDays(todayKey(), -1) ? "Yesterday" : fmt(k, { year: "numeric" })}</div><h2>${longDate(k)}</h2></div><button class="btn ghost" data-act="close" aria-label="Close">✕</button></div>
     <div class="sheet-body">
       <span class="eyebrow">How was this day?</span>
       ${choice(k)}
+      ${drinkPanel(k)}
       ${status(k) ? `<button class="btn small" style="justify-self:start" data-act="clear" data-day="${k}">Mark as not logged</button>` : ""}
     </div>
   </aside>`;
@@ -419,12 +484,17 @@ document.addEventListener("click", e => {
   const act = el.dataset.act, k = el.dataset.day;
   if (act === "set") {
     const v = el.dataset.v;
-    const wasSheet = !!state.sheet; state.sheet = null; setDay(k, v);
+    const wasSheet = !!state.sheet;
+    /* Drank keeps the day sheet open so the drinks can be added; Sober closes it. */
+    if (v === "sober") state.sheet = null;
+    setDay(k, v);
     toast(`${k === todayKey() ? "Today" : longDate(k)} logged as ${v === "sober" ? "sober" : "a drinking day"}.`);
-    if (wasSheet) { const next = recentGaps()[0]; if (next && state.tab === "today") { state.sheet = next; renderSheet() } }
+    if (wasSheet && v === "sober") { const next = recentGaps()[0]; if (next && state.tab === "today") { state.sheet = next; renderSheet(true) } }
   }
+  else if (act === "drink") addDrink(k, el.dataset.type, +el.dataset.d);
+  else if (act === "dperiod") { state.drinkPeriod = +el.dataset.i; render() }
   else if (act === "clear") { state.sheet = null; setDay(k, null); toast(`${longDate(k)} is no longer logged.`) }
-  else if (act === "open") { state.sheet = k; renderSheet() }
+  else if (act === "open") { state.sheet = k; renderSheet(true) }
   else if (act === "close") { state.sheet = null; renderSheet() }
   else if (act === "month") { const [y, m] = state.month.split("-").map(Number), d = new Date(y, m - 1 + +el.dataset.d, 1); state.month = keyOf(d).slice(0, 7); render() }
   else if (act === "thismonth") { state.month = todayKey().slice(0, 7); render() }
