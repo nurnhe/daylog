@@ -7,8 +7,9 @@ A private tracker for sober and drinking days. Log each day with one tap and see
 ## Features
 
 - **Today:** your current streak (sober or drinking days in a row), two big buttons to log today, the last 7 days as dots, and your longest sober streak. If a recent day isn't logged, a reminder offers to fill it in.
-- **Calendar:** a month grid coloured by sober, drinking or not logged. Tap any past day to change it.
-- **Stats:** sober vs drinking totals for this week, this month and all time, plus your recent streaks.
+- **Drinks:** on a drinking day, count what you drank by kind (beer, wine, spirits, cocktail, cider, other) with + and − buttons. Each glass, bottle, can or shot counts as one.
+- **Calendar:** a month grid coloured by sober, drinking or not logged, with the number of drinks on drinking days. Tap any past day to change it.
+- **Stats:** sober vs drinking days and drink totals for this week, this month and all time, what you drank by kind, and your recent streaks.
 - **Settings:** when a day ends (4 am by default, so a late night counts for the evening before), light or dark theme, and backup and restore.
 
 ## How streaks are counted
