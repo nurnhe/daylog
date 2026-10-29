@@ -226,7 +226,22 @@ function load() {
     if (data.settings) Object.assign(state.settings, data.settings);
     state.days = data.days || {};
   } catch (e) {}
+  state.settings.theme = sharedTheme(state.settings.theme);
 }
+/* The colour theme lives under "nurnhe-theme", one key shared by all of KK's apps on nurnhe.github.io,
+   so switching it in one app switches them all. An older choice saved in this app's settings moves there once. */
+const THEME_KEY = "nurnhe-theme";
+function sharedTheme(fallback) {
+  try {
+    const t = localStorage.getItem(THEME_KEY);
+    if (t === "auto" || t === "light" || t === "dark") return t;
+    if (fallback === "light" || fallback === "dark") localStorage.setItem(THEME_KEY, fallback);
+  } catch (e) {}
+  return fallback === "light" || fallback === "dark" ? fallback : "auto";
+}
+function setTheme(t) { state.settings.theme = t; try { localStorage.setItem(THEME_KEY, t) } catch (e) {} save(); render() }
+addEventListener("storage", e => { if (e.key === THEME_KEY) { state.settings.theme = sharedTheme("auto"); render() } });
+matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", () => applyTheme());
 function save() { try { localStorage.setItem(LKEY, JSON.stringify({ version: 1, settings: state.settings, days: state.days })) } catch (e) {} }
 
 /* ---------- dates ----------
@@ -306,6 +321,8 @@ function toast(msg) {
 function applyTheme() {
   const t = state.settings.theme;
   if (t === "auto") delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = t;
+  const dark = t === "dark" || t === "auto" && matchMedia("(prefers-color-scheme: dark)").matches;
+  document.querySelectorAll('meta[name="theme-color"]').forEach(m => { m.content = dark ? "#0F1719" : "#F3F8F7"; m.removeAttribute("media") });
 }
 
 /* ---------- render ---------- */
@@ -481,7 +498,7 @@ document.addEventListener("click", e => {
   else if (act === "close") { state.sheet = null; renderSheet() }
   else if (act === "month") { const [y, m] = state.month.split("-").map(Number), d = new Date(y, m - 1 + +el.dataset.d, 1); state.month = keyOf(d).slice(0, 7); render() }
   else if (act === "thismonth") { state.month = todayKey().slice(0, 7); render() }
-  else if (act === "theme") { state.settings.theme = el.dataset.v; save(); render() }
+  else if (act === "theme") setTheme(el.dataset.v);
   else if (act === "backup") saveBackup();
   else if (act === "wipe") {
     if (!Object.keys(state.days).length) { toast("There are no days to delete."); return }

@@ -10,7 +10,7 @@ A private tracker for sober and drinking days. Log each day with one tap and see
 - **Drinks:** on a drinking day, count what you drank by kind (beer, wine, spirits, cocktail, cider, other) with + and − buttons. Each glass, bottle, can or shot counts as one.
 - **Calendar:** a month grid coloured by sober, drinking or not logged, with the number of drinks on drinking days. Tap any past day to change it.
 - **Stats:** sober vs drinking days and drink totals for this week, this month and all time, what you drank by kind, and your recent streaks.
-- **Settings:** when a day ends (4 am by default, so a late night counts for the evening before), light or dark theme, and backup and restore.
+- **Settings:** when a day ends (4 am by default, so a late night counts for the evening before), Auto, Light or Dark colour theme (shared with the other apps on nurnhe.github.io, so switching it in one switches them all), and backup and restore.
 
 ## How streaks are counted
 

@@ -1,7 +1,7 @@
 // Offline support. The page itself is fetched fresh when online (so updates show on the next open)
 // and falls back to the cache when offline; other files come from the cache and refresh in the background.
 // Other apps on nurnhe.github.io share this cache storage, so only old Days caches are removed.
-const CACHE = "days-app-v1";
+const CACHE = "days-app-v2";
 const SHELL = ["./", "./index.html", "./manifest.webmanifest", "./icons/icon-192.png", "./icons/icon-512.png"];
 
 self.addEventListener("install", e => {
