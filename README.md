@@ -2,7 +2,7 @@
 
 A private tracker for sober and drinking days. Log each day with one tap and see your current streak, your longest sober streak, a month calendar and totals.
 
-**Use it as a phone app:** open the GitHub Pages address in Chrome on Android, then tap ⋮ → **Install app** (or **Add to Home screen**). It opens full screen with its own icon and works offline. On the home screen it is just called "Days".
+**Use it as a phone app:** open https://nurnhe.github.io/daylog/app/ in Chrome on Android, then tap ⋮ → **Install app** (or **Add to Home screen**). It opens full screen with its own icon and works offline. On the home screen it is just called "Days".
 
 ## Features
 
@@ -22,9 +22,11 @@ Everything is saved in the browser's `localStorage` on your device. Nothing is s
 
 ## Files
 
-- `days.html` is the page itself. The same file is published as a Claude artifact.
-- `build.py` wraps it into `index.html` with the app manifest and offline support. Run `python3 build.py` after editing `days.html`, and bump the cache name in `sw.js` so installed phones pick up the change.
-- `manifest.webmanifest`, `sw.js` and `icons/` make it installable and work offline.
+The app lives in `app/`. The top-level `index.html` only redirects the old address to `app/`, and the top-level `sw.js` removes the service worker the app used before it moved.
+
+- `app/days.html` is the page itself. The same file is published as a Claude artifact.
+- `app/build.py` wraps it into `app/index.html` with the app manifest and offline support. Run `python3 app/build.py` after editing `app/days.html`, and bump the cache name in `app/sw.js` so installed phones pick up the change.
+- `app/manifest.webmanifest`, `app/sw.js` and `app/icons/` make it installable and work offline.
 
 ## Credits
 

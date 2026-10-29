@@ -1,0 +1,546 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Days</title>
+<meta name="theme-color" content="#F3F8F7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0F1719" media="(prefers-color-scheme: dark)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Days">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Days</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@300;400;500;600&display=swap">
+<style>
+/* Layout: Today (streak + one-tap log), Calendar (month grid), Stats and Settings; a side sheet edits a single day. Design follows Skin Diary with a calmer teal palette. */
+:root {
+  --bg: #F3F8F7; --bg-2: #EAF0F8; --glow-1: #D3F0E3; --glow-2: #DCE6FF; --glow-3: #FFE7D8;
+  --surface: rgba(255, 255, 255, .72); --surface-solid: #FFFFFF; --ink: #1D2B31; --muted: #6E8189; --line: rgba(30, 80, 90, .14);
+  --accent: #1F6F78; --accent-ink: #FFFFFF; --accent-soft: #DDEFF0; --lime: #B6D94C;
+  --ok: #3E8A5C; --ok-soft: #E2F2E7; --warn: #B4462A; --warn-soft: #FDE8E0;
+  --shadow: 0 1px 2px rgba(20, 60, 70, .05), 0 10px 30px rgba(30, 80, 100, .09);
+  --shadow-lg: 0 24px 60px rgba(20, 50, 60, .22);
+  --serif: "Instrument Serif", "Iowan Old Style", Georgia, serif;
+  --sans: "Outfit", "Avenir Next", "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0F1719; --bg-2: #121B22; --glow-1: rgba(31, 111, 120, .30); --glow-2: rgba(70, 90, 170, .24); --glow-3: rgba(182, 217, 76, .08);
+  --surface: rgba(24, 36, 40, .72); --surface-solid: #18252A; --ink: #E7F1F1; --muted: #9AAEB4; --line: rgba(200, 235, 240, .12);
+  --accent: #7FD0D6; --accent-ink: #0F1719; --accent-soft: #1D3639; --lime: #C6E46A;
+  --ok: #7FD1A0; --ok-soft: #1B3326; --warn: #F29A7A; --warn-soft: #3B2220;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35); --shadow-lg: 0 24px 60px rgba(0,0,0,.6); color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0F1719; --bg-2: #121B22; --glow-1: rgba(31, 111, 120, .30); --glow-2: rgba(70, 90, 170, .24); --glow-3: rgba(182, 217, 76, .08);
+  --surface: rgba(24, 36, 40, .72); --surface-solid: #18252A; --ink: #E7F1F1; --muted: #9AAEB4; --line: rgba(200, 235, 240, .12);
+  --accent: #7FD0D6; --accent-ink: #0F1719; --accent-soft: #1D3639; --lime: #C6E46A;
+  --ok: #7FD1A0; --ok-soft: #1B3326; --warn: #F29A7A; --warn-soft: #3B2220;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35); --shadow-lg: 0 24px 60px rgba(0,0,0,.6); color-scheme: dark }
+
+* { box-sizing: border-box }
+html { min-height: 100% }
+body { margin: 0; min-height: 100%; color: var(--ink); font: 300 15px/1.55 var(--sans);
+  background: radial-gradient(900px 500px at 8% -5%, var(--glow-1), transparent 60%), radial-gradient(800px 520px at 100% 10%, var(--glow-2), transparent 60%),
+    radial-gradient(700px 400px at 50% 110%, var(--glow-3), transparent 60%), linear-gradient(180deg, var(--bg), var(--bg-2)); background-color: var(--bg); background-attachment: fixed }
+[hidden] { display: none !important }
+.wrap { max-width: 760px; margin: 0 auto; padding-block: 28px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 22px }
+h1, h2, h3 { margin: 0; font-weight: 400; text-wrap: balance }
+h1 { font-family: var(--serif); font-size: clamp(44px, 7vw, 68px); line-height: .95; letter-spacing: -.02em }
+h1 em { color: var(--accent) }
+h2 { font-family: var(--serif); font-size: 30px; line-height: 1.1 }
+h3 { font-family: var(--serif); font-size: 22px; line-height: 1.1 }
+p { margin: 0 }
+button, input, select { font: inherit; color: inherit }
+button { cursor: pointer }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+.muted { color: var(--muted) }
+.eyebrow { font-size: 11px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; color: var(--muted) }
+
+header.top { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 16px 24px }
+nav.tabs { display: flex; gap: 2px; background: var(--surface); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid var(--line); border-radius: 999px; padding: 4px; box-shadow: var(--shadow) }
+nav.tabs button { border: 0; background: none; padding: 8px 16px; border-radius: 999px; font-weight: 400; color: var(--muted); transition: background .2s, color .2s }
+nav.tabs button[aria-selected="true"] { background: var(--ink); color: var(--bg); font-weight: 500 }
+.bottom-nav { display: none }
+@media (max-width: 700px) {
+  header.top nav.tabs { display: none }
+  h1 { font-size: 40px }
+  .wrap { padding-block: 16px calc(96px + env(safe-area-inset-bottom, 0px)); gap: 18px }
+  .bottom-nav { display: grid; grid-template-columns: repeat(4, 1fr); position: fixed; left: 0; right: 0; bottom: 0; z-index: 15;
+    padding: 6px max(8px, env(safe-area-inset-left, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(8px, env(safe-area-inset-right, 0px));
+    background: var(--surface); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border-top: 1px solid var(--line) }
+  .bottom-nav button { border: 0; background: none; display: grid; justify-items: center; gap: 2px; padding: 6px 0; font-size: 11.5px; font-weight: 500; color: var(--muted); border-radius: 14px; -webkit-tap-highlight-color: transparent }
+  .bottom-nav svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; padding: 2px 14px; box-sizing: content-box; border-radius: 999px; transition: background .2s }
+  .bottom-nav button[aria-current="page"] { color: var(--accent) }
+  .bottom-nav button[aria-current="page"] svg { background: var(--accent-soft) }
+  .panel { padding: 18px }
+}
+
+.glass { background: var(--surface); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--line); border-radius: 26px; box-shadow: var(--shadow) }
+.panel { padding: 22px; display: grid; gap: 16px; align-content: start; min-width: 0 }
+.btn { border: 1px solid var(--line); background: var(--surface-solid); border-radius: 999px; padding: 7px 14px; font-weight: 400; min-height: 36px; transition: border-color .2s, transform .2s }
+.btn:hover { border-color: var(--accent) }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 500 }
+.btn.ghost { background: none; border-color: transparent; color: var(--muted) }
+.btn.small { padding: 4px 11px; font-size: 13px; min-height: 30px }
+.btn.danger { color: var(--warn) }
+.btn:disabled { opacity: .45; cursor: default }
+.row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px }
+
+/* Today */
+.streak { display: grid; justify-items: center; text-align: center; gap: 4px; padding: 30px 18px 26px; border-radius: 22px }
+.streak.sober { background: linear-gradient(150deg, var(--ok-soft), color-mix(in srgb, var(--accent-soft) 70%, var(--surface-solid))) }
+.streak.drinking { background: linear-gradient(150deg, var(--warn-soft), color-mix(in srgb, var(--warn-soft) 40%, var(--surface-solid))) }
+.streak.none { background: color-mix(in srgb, var(--surface-solid) 60%, transparent); border: 1px dashed var(--line) }
+.streak .num { font-family: var(--serif); font-size: clamp(88px, 22vw, 128px); line-height: .9; font-variant-numeric: tabular-nums; letter-spacing: -.03em }
+.streak.sober .num { color: var(--ok) }
+.streak.drinking .num { color: var(--warn) }
+.streak .what { font-family: var(--serif); font-size: 24px; line-height: 1.15 }
+.streak .hint { font-size: 13.5px; color: var(--muted); max-width: 40ch }
+.log { display: grid; gap: 10px }
+.log-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px }
+.log-head .date { font-family: var(--serif); font-size: 26px; line-height: 1.1 }
+.log-head .date em { color: var(--accent) }
+.choice { display: grid; grid-template-columns: 1fr 1fr; gap: 10px }
+.choice button { border: 1px solid var(--line); background: var(--surface-solid); border-radius: 20px; padding: 16px 12px; min-height: 64px; font-size: 17px; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background .2s, border-color .2s, color .2s, transform .15s }
+.choice button:active { transform: scale(.98) }
+.choice .dot { width: 12px; height: 12px; border-radius: 50% }
+.choice [data-v="sober"] .dot { background: var(--ok) }
+.choice [data-v="drinking"] .dot { background: var(--warn) }
+.choice [data-v="sober"][aria-pressed="true"] { background: var(--ok); border-color: var(--ok); color: var(--surface-solid) }
+.choice [data-v="drinking"][aria-pressed="true"] { background: var(--warn); border-color: var(--warn); color: var(--surface-solid) }
+.choice [aria-pressed="true"] .dot { background: var(--surface-solid) }
+.choice.compact button { min-height: 44px; padding: 8px 10px; font-size: 15px; border-radius: 16px }
+.week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px }
+.week button { border: 0; background: none; padding: 4px 0; display: grid; justify-items: center; gap: 4px; border-radius: 14px; -webkit-tap-highlight-color: transparent }
+.week button:hover { background: color-mix(in srgb, var(--surface-solid) 60%, transparent) }
+.week .wd { font-size: 11px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; color: var(--muted) }
+.pip { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 500; font-variant-numeric: tabular-nums;
+  background: var(--surface-solid); border: 1.5px dashed color-mix(in srgb, var(--muted) 45%, transparent); color: var(--muted) }
+.pip.sober { background: var(--ok); border: 0; color: var(--surface-solid) }
+.pip.drinking { background: var(--warn); border: 0; color: var(--surface-solid) }
+.pip.today { box-shadow: 0 0 0 2px var(--surface-solid), 0 0 0 4px var(--lime) }
+.notice { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; padding: 12px 14px; border-radius: 16px; background: var(--accent-soft); color: var(--accent); font-size: 13.5px; font-weight: 400 }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px }
+.fact { padding: 12px 14px; border-radius: 16px; background: var(--surface-solid); border: 1px solid var(--line); display: grid; gap: 2px }
+.fact b { font-family: var(--serif); font-weight: 400; font-size: 30px; line-height: 1; font-variant-numeric: tabular-nums }
+.fact span { font-size: 12.5px; color: var(--muted) }
+
+.drinks { display: grid; gap: 10px; padding: 14px; border-radius: 18px; background: color-mix(in srgb, var(--warn-soft) 55%, var(--surface-solid)); border: 1px solid var(--line) }
+.drinks-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px }
+.drinks-head .total { font-family: var(--serif); font-size: 22px; line-height: 1; color: var(--warn); font-variant-numeric: tabular-nums }
+.drink-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px }
+.drink { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 6px 6px 6px 12px; border-radius: 14px; background: var(--surface-solid); border: 1px solid var(--line) }
+.drink .nm { font-weight: 400; overflow-wrap: anywhere }
+.stepper { display: flex; align-items: center; gap: 2px }
+.stepper button { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface-solid); font-size: 18px; line-height: 1; display: grid; place-items: center; padding: 0; -webkit-tap-highlight-color: transparent }
+.stepper button:disabled { opacity: .35; cursor: default }
+.stepper .add { background: var(--warn-soft); border-color: transparent; color: var(--warn) }
+.stepper output { min-width: 22px; text-align: center; font-weight: 500; font-variant-numeric: tabular-nums }
+.drink.zero output { color: var(--muted); font-weight: 300 }
+.drinks .help { font-size: 12.5px; color: var(--muted) }
+@media (max-width: 700px) {
+  .drinks { padding: 12px 10px }
+  .drink-list { grid-template-columns: repeat(2, minmax(0, 1fr)) }
+  .drink { grid-template-columns: minmax(0, 1fr); padding: 8px 8px 8px 12px; gap: 4px }
+  .stepper { justify-content: space-between }
+}
+.types { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px }
+.types li { display: grid; grid-template-columns: 84px minmax(0, 1fr) 40px; gap: 10px; align-items: center; font-size: 14px }
+.types .bar { height: 8px }
+.types .bar span { background: var(--warn); border-radius: 999px }
+.types b { font-weight: 500; text-align: right; font-variant-numeric: tabular-nums }
+
+/* Calendar */
+.cal-head { display: flex; align-items: center; justify-content: space-between; gap: 8px }
+.cal-head .btn { min-width: 40px; font-size: 18px; line-height: 1; padding: 6px 12px }
+.grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px }
+.grid .wd { text-align: center; font-size: 11px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); padding-bottom: 2px }
+.cell { aspect-ratio: 1; border-radius: 14px; border: 1px solid var(--line); background: color-mix(in srgb, var(--surface-solid) 70%, transparent); display: grid; place-items: center;
+  font-family: var(--serif); font-size: 20px; font-variant-numeric: tabular-nums; padding: 0; transition: transform .15s, background .2s; min-height: 36px; align-content: center; gap: 0; line-height: 1.05 }
+.cell .c { font: 500 10.5px/1 var(--sans); opacity: .9 }
+.cell:not(:disabled):hover { transform: translateY(-1px); border-color: var(--accent) }
+.cell.sober { background: var(--ok); border-color: var(--ok); color: var(--surface-solid) }
+.cell.drinking { background: var(--warn); border-color: var(--warn); color: var(--surface-solid) }
+.cell.today { box-shadow: 0 0 0 2px var(--lime) }
+.cell:not(.sober):not(.drinking):not(:disabled) { border: 1.5px dashed color-mix(in srgb, var(--muted) 45%, transparent) }
+.cell:disabled { opacity: .35; cursor: default }
+.cell.pad { visibility: hidden }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--muted) }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: 0 }
+.legend .s { background: var(--ok) } .legend .d { background: var(--warn) } .legend .n { border: 1.5px dashed var(--muted) }
+
+/* Stats */
+.period { display: grid; gap: 8px; padding: 14px; border-radius: 18px; background: var(--surface-solid); border: 1px solid var(--line) }
+.period-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px }
+.period-head h3 { font-size: 22px }
+.bar { display: flex; height: 10px; border-radius: 999px; overflow: hidden; background: color-mix(in srgb, var(--muted) 18%, transparent) }
+.bar .s { background: var(--ok) } .bar .d { background: var(--warn) }
+.counts { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 13.5px; font-variant-numeric: tabular-nums }
+.counts .s { color: var(--ok); font-weight: 500 } .counts .d { color: var(--warn); font-weight: 500 }
+.runs { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px }
+.runs li { display: grid; grid-template-columns: 12px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 10px 14px; border-radius: 14px; background: var(--surface-solid); border: 1px solid var(--line); font-size: 14px }
+.runs li .dot { width: 10px; height: 10px; border-radius: 50% }
+.runs li.sober .dot { background: var(--ok) } .runs li.drinking .dot { background: var(--warn) }
+.runs li b { font-weight: 500; font-variant-numeric: tabular-nums }
+
+/* Settings */
+.field { display: grid; gap: 6px; font-size: 13px; color: var(--muted) }
+.input { border: 1px solid var(--line); background: var(--surface-solid); border-radius: 14px; padding: 9px 12px; color: var(--ink); width: 100%; max-width: 260px }
+.seg { display: inline-flex; gap: 2px; padding: 3px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface-solid); justify-self: start }
+.seg button { border: 0; background: none; padding: 6px 14px; border-radius: 999px; color: var(--muted); font-size: 14px }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); font-weight: 500 }
+.empty-state { text-align: center; padding: 36px 20px; display: grid; gap: 12px; justify-items: center }
+.empty-state p { max-width: 46ch }
+
+/* Sheet */
+.scrim { position: fixed; inset: 0; background: rgba(15, 30, 35, .35); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); z-index: 20 }
+.sheet { position: fixed; top: 0; right: 0; bottom: 0; width: min(480px, 100%); background: var(--surface-solid); z-index: 21; box-shadow: var(--shadow-lg);
+  border-radius: 28px 0 0 28px; display: grid; grid-template-rows: auto 1fr; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px) }
+@media (prefers-reduced-motion: no-preference) { .sheet.enter { animation: slide .3s cubic-bezier(.2, .8, .2, 1) } @keyframes slide { from { transform: translateX(40px); opacity: 0 } } }
+@media (max-width: 520px) { .sheet { border-radius: 0 } }
+.sheet-head { display: flex; align-items: start; justify-content: space-between; gap: 12px; padding: 22px 22px 14px; border-bottom: 1px solid var(--line) }
+.sheet-head h2 { font-size: 32px }
+.sheet-body { overflow-y: auto; padding: 18px 22px 32px; display: grid; gap: 18px; align-content: start }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(18px + env(safe-area-inset-bottom, 0px)); background: var(--ink); color: var(--bg); padding: 10px 18px; border-radius: 18px; font-size: 14px; line-height: 1.4; text-align: center; z-index: 30; box-shadow: var(--shadow-lg); width: max-content; max-width: min(420px, calc(100% - 32px)); overflow-wrap: anywhere }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div><div class="eyebrow">Sober and drinking days</div><h1>My <em>Days</em></h1></div>
+    <nav class="tabs" role="tablist" id="tabs"></nav>
+  </header>
+  <main id="main"></main>
+</div>
+<nav class="bottom-nav" id="bottomNav" aria-label="Sections"></nav>
+<div id="sheetRoot"></div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+/* ---------- state ---------- */
+const LKEY = "days-tracker-v1";
+const state = { tab: "today", month: null, sheet: null, settings: { boundary: 4, theme: "auto" }, days: {} };
+const TABS = [
+  ["today", "Today", '<circle cx="12" cy="12" r="4"/><path d="M3 12h1m8-9v1m8 8h1m-9 8v1M5.6 5.6l.7.7m12.1-.7-.7.7m0 11.4.7.7m-12.1-.7-.7.7"/>'],
+  ["calendar", "Calendar", '<rect x="4" y="5" width="16" height="16" rx="2"/><path d="M16 3v4M8 3v4M4 11h16M8 15h2v2H8z"/>'],
+  ["stats", "Stats", '<path d="M3 13a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1zM15 9a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1zM9 5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1z"/>'],
+  ["settings", "Settings", '<circle cx="14" cy="6" r="2"/><path d="M4 6h8m4 0h4"/><circle cx="8" cy="12" r="2"/><path d="M4 12h2m4 0h10"/><circle cx="17" cy="18" r="2"/><path d="M4 18h11m4 0h1"/>']
+];
+const LABEL = { sober: "Sober", drinking: "Drank" };
+/* Kinds of drink. Each counts glasses, bottles, cans or shots. */
+const DRINKS = [["beer", "Beer"], ["wine", "Wine"], ["spirits", "Spirits"], ["cocktail", "Cocktail"], ["cider", "Cider"], ["other", "Other"]];
+
+function load() {
+  try {
+    const data = JSON.parse(localStorage.getItem(LKEY) || "{}");
+    if (data.settings) Object.assign(state.settings, data.settings);
+    state.days = data.days || {};
+  } catch (e) {}
+}
+function save() { try { localStorage.setItem(LKEY, JSON.stringify({ version: 1, settings: state.settings, days: state.days })) } catch (e) {} }
+
+/* ---------- dates ----------
+   Days are local calendar dates ("2026-10-27"). A day ends at the boundary hour (4 am by default), so a drink at 1 am counts for the evening before. */
+const pad = n => String(n).padStart(2, "0");
+const keyOf = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const dateOf = k => { const [y, m, d] = k.split("-").map(Number); return new Date(y, m - 1, d, 12) };
+const addDays = (k, n) => { const d = dateOf(k); d.setDate(d.getDate() + n); return keyOf(d) };
+function todayKey() { const d = new Date(); d.setHours(d.getHours() - state.settings.boundary); return keyOf(d) }
+const fmt = (k, o) => dateOf(k).toLocaleDateString("en-GB", o);
+const longDate = k => fmt(k, { weekday: "long", day: "numeric", month: "long" });
+const shortDate = k => fmt(k, { day: "numeric", month: "short" });
+const plural = (n, w) => `${n} ${w}${n === 1 ? "" : "s"}`;
+const status = k => state.days[k]?.status;
+
+/* ---------- streaks (always computed from the log) ---------- */
+/* Current streak: from today if logged, else from yesterday; walk back while the type matches. A gap or the other type ends it. */
+function currentStreak() {
+  let k = todayKey();
+  if (!status(k)) k = addDays(k, -1);
+  const type = status(k);
+  if (!type) return null;
+  let n = 0, from = k;
+  while (status(from) === type) { n++; from = addDays(from, -1) }
+  return { type, n, from: addDays(from, 1), to: k, includesToday: k === todayKey() };
+}
+/* Every run of consecutive same-type days, oldest first. */
+function runs() {
+  const out = [];
+  for (const k of Object.keys(state.days).sort()) {
+    const last = out[out.length - 1], t = status(k);
+    if (last && last.type === t && addDays(last.to, 1) === k) { last.to = k; last.n++ }
+    else out.push({ type: t, from: k, to: k, n: 1 });
+  }
+  return out;
+}
+const longest = type => runs().filter(r => r.type === type).reduce((m, r) => r.n > m.n ? r : m, { n: 0 });
+const drinksOf = k => state.days[k]?.drinks || {};
+const drinkTotal = k => Object.values(drinksOf(k)).reduce((a, b) => a + b, 0);
+function countRange(from, to) {
+  const c = { sober: 0, drinking: 0, none: 0, total: 0, drinks: 0, byType: {} };
+  for (let k = from; k <= to; k = addDays(k, 1)) {
+    c[status(k) || "none"]++; c.total++;
+    for (const [type, n] of Object.entries(drinksOf(k))) { c.drinks += n; c.byType[type] = (c.byType[type] || 0) + n }
+  }
+  return c;
+}
+function runDrinks(r) { let n = 0; for (let k = r.from; k <= r.to; k = addDays(k, 1)) n += drinkTotal(k); return n }
+function firstKey() { return Object.keys(state.days).sort()[0] }
+/* Unlogged days in the last week (not counting today), only after the first ever entry. */
+function recentGaps() {
+  const first = firstKey(), t = todayKey(), gaps = [];
+  if (!first) return gaps;
+  for (let i = 1; i <= 7; i++) { const k = addDays(t, -i); if (k >= first && !status(k)) gaps.push(k) }
+  return gaps;
+}
+
+/* ---------- actions ---------- */
+function setDay(k, v) {
+  /* Drinks are kept when a day stays a drinking day and dropped when it becomes sober. */
+  const drinks = v === "drinking" ? state.days[k]?.drinks : undefined;
+  if (v) state.days[k] = { status: v, ...(drinks ? { drinks } : {}), updatedAt: new Date().toISOString() }; else delete state.days[k];
+  save(); render();
+}
+function addDrink(k, type, delta) {
+  const day = state.days[k] = { ...state.days[k], status: "drinking", updatedAt: new Date().toISOString() };
+  const drinks = { ...day.drinks, [type]: Math.max(0, (day.drinks?.[type] || 0) + delta) };
+  if (!drinks[type]) delete drinks[type];
+  day.drinks = drinks;
+  save(); render();
+}
+function toast(msg) {
+  const t = document.getElementById("toast"), nav = document.getElementById("bottomNav");
+  t.style.bottom = getComputedStyle(nav).display !== "none" ? nav.getBoundingClientRect().height + 12 + "px" : "";
+  t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => t.hidden = true, 3000 + msg.length * 20);
+}
+function applyTheme() {
+  const t = state.settings.theme;
+  if (t === "auto") delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = t;
+}
+
+/* ---------- render ---------- */
+let lastToday = null;
+function render() {
+  lastToday = todayKey(); applyTheme();
+  document.getElementById("tabs").innerHTML = TABS.map(([id, label]) =>
+    `<button role="tab" aria-selected="${state.tab === id}" data-tab="${id}">${label}</button>`).join("");
+  document.getElementById("bottomNav").innerHTML = TABS.map(([id, label, svg]) =>
+    `<button data-tab="${id}" ${state.tab === id ? 'aria-current="page"' : ""}><svg viewBox="0 0 24 24" aria-hidden="true">${svg}</svg>${label}</button>`).join("");
+  document.getElementById("main").innerHTML = { today: viewToday, calendar: viewCalendar, stats: viewStats, settings: viewSettings }[state.tab]();
+  renderSheet();
+}
+function drinkPanel(k) {
+  if (status(k) !== "drinking") return "";
+  const total = drinkTotal(k), d = drinksOf(k);
+  return `<div class="drinks" aria-label="Drinks on ${longDate(k)}">
+    <div class="drinks-head"><span class="eyebrow">What did you drink?</span><span class="total">${total ? plural(total, "drink") : ""}</span></div>
+    <div class="drink-list">${DRINKS.map(([type, name]) => { const n = d[type] || 0; return `<div class="drink ${n ? "" : "zero"}"><span class="nm">${name}</span>
+      <span class="stepper"><button data-act="drink" data-day="${k}" data-type="${type}" data-d="-1" ${n ? "" : "disabled"} aria-label="One less ${name.toLowerCase()}">−</button><output aria-live="polite">${n}</output><button class="add" data-act="drink" data-day="${k}" data-type="${type}" data-d="1" aria-label="One more ${name.toLowerCase()}">+</button></span></div>` }).join("")}</div>
+    <p class="help">Count each glass, bottle, can or shot as one.</p>
+  </div>`;
+}
+const choice = (k, extra = "") => `<div class="choice ${extra}" role="group" aria-label="${longDate(k)}">${["sober", "drinking"].map(v =>
+  `<button data-act="set" data-day="${k}" data-v="${v}" aria-pressed="${status(k) === v}"><span class="dot"></span>${LABEL[v]}</button>`).join("")}</div>`;
+
+function viewToday() {
+  const t = todayKey(), s = currentStreak(), gaps = recentGaps(), best = longest("sober");
+  let streak;
+  if (s) {
+    const word = s.type === "sober" ? (s.n === 1 ? "sober day" : "sober days in a row") : (s.n === 1 ? "drinking day" : "drinking days in a row");
+    const hint = s.includesToday ? `Since ${longDate(s.from)}.` : "Counting up to yesterday. Log today to update it.";
+    streak = `<div class="streak ${s.type}"><div class="eyebrow">Current streak</div><div class="num">${s.n}</div><div class="what">${word}</div><p class="hint">${hint}</p></div>`;
+  } else if (firstKey()) {
+    streak = `<div class="streak none"><div class="eyebrow">Current streak</div><div class="what">No current streak</div><p class="hint">Yesterday isn't logged yet. Log today, or fill in the missing days, to see your streak.</p></div>`;
+  } else {
+    streak = `<div class="streak none"><div class="eyebrow">Welcome</div><div class="what">Tap Sober or Drank below to log today</div><p class="hint">Your streak appears here. Everything stays on this device.</p></div>`;
+  }
+  const week = Array.from({ length: 7 }, (_, i) => addDays(t, i - 6)).map(k =>
+    `<button data-act="open" data-day="${k}" aria-label="${longDate(k)}: ${LABEL[status(k)] || "not logged"}"><span class="wd">${fmt(k, { weekday: "narrow" })}</span><span class="pip ${status(k) || ""} ${k === t ? "today" : ""}">${dateOf(k).getDate()}</span></button>`).join("");
+  const gapNote = gaps.length ? `<div class="notice"><span>${gaps.length === 1 ? `${longDate(gaps[0])} isn't logged.` : `${gaps.length} days this week aren't logged.`}</span><button class="btn small" data-act="open" data-day="${gaps[0]}">Fill in</button></div>` : "";
+  const day = dateOf(t);
+  return `<section class="glass panel">
+    ${streak}
+    <div class="log">
+      <div class="log-head"><div class="date">${fmt(t, { weekday: "long" })} <em>${day.getDate()}</em> ${fmt(t, { month: "long" })}</div><span class="eyebrow">How was today?</span></div>
+      ${choice(t)}
+      ${drinkPanel(t)}
+    </div>
+    ${gapNote}
+  </section>
+  <section class="glass panel">
+    <div class="log-head"><h3>Last 7 days</h3><span class="muted" style="font-size:13px">Tap a day to change it</span></div>
+    <div class="week">${week}</div>
+    <div class="facts">
+      <div class="fact"><b>${best.n}</b><span>Longest sober streak${best.n ? ` (${shortDate(best.from)} to ${shortDate(best.to)})` : ""}</span></div>
+      <div class="fact"><b>${countRange(addDays(t, -6), t).sober}</b><span>Sober, last 7 days</span></div>
+      <div class="fact"><b>${countRange(addDays(t, -6), t).drinks}</b><span>Drinks, last 7 days</span></div>
+    </div>
+  </section>`;
+}
+
+function viewCalendar() {
+  const t = todayKey();
+  if (!state.month) state.month = t.slice(0, 7);
+  const [y, m] = state.month.split("-").map(Number);
+  const first = `${state.month}-01`, days = new Date(y, m, 0).getDate(), last = `${state.month}-${pad(days)}`;
+  const lead = (dateOf(first).getDay() + 6) % 7; /* Monday first */
+  const cells = [...Array(lead)].map(() => `<span class="cell pad"></span>`);
+  for (let d = 1; d <= days; d++) {
+    const k = `${state.month}-${pad(d)}`, s = status(k);
+    cells.push(`<button class="cell ${s || ""} ${k === t ? "today" : ""}" data-act="open" data-day="${k}" ${k > t ? "disabled" : ""} aria-label="${longDate(k)}: ${LABEL[s] || "not logged"}${drinkTotal(k) ? `, ${plural(drinkTotal(k), "drink")}` : ""}"><span>${d}</span>${drinkTotal(k) ? `<span class="c">${drinkTotal(k)}</span>` : ""}</button>`);
+  }
+  const c = countRange(first, last < t ? last : t), isNow = state.month === t.slice(0, 7);
+  const future = first > t;
+  return `<section class="glass panel">
+    <div class="cal-head"><button class="btn" data-act="month" data-d="-1" aria-label="Previous month">‹</button>
+      <h2>${dateOf(first).toLocaleDateString("en-GB", { month: "long", year: "numeric" })}</h2>
+      <button class="btn" data-act="month" data-d="1" aria-label="Next month" ${isNow ? "disabled" : ""}>›</button></div>
+    <div class="grid">${["M", "T", "W", "T", "F", "S", "S"].map(w => `<span class="wd">${w}</span>`).join("")}${cells.join("")}</div>
+    ${future ? "" : `<div class="counts"><span class="s">${plural(c.sober, "sober day")}</span><span class="d">${plural(c.drinking, "drinking day")}${c.drinks ? `, ${plural(c.drinks, "drink")}` : ""}</span><span class="muted">${c.none} not logged</span></div>`}
+    <div class="legend"><span><i class="s"></i>Sober</span><span><i class="d"></i>Drank</span><span><i class="n"></i>Not logged</span></div>
+    ${isNow ? "" : `<button class="btn small" style="justify-self:start" data-act="thismonth">Back to this month</button>`}
+  </section>`;
+}
+
+function viewStats() {
+  const t = todayKey(), first = firstKey();
+  if (!first) return `<section class="glass panel"><div class="empty-state"><h2>No days logged yet</h2><p class="muted">Log today on the Today tab and your totals and streaks will show here.</p><button class="btn primary" data-tab="today">Go to Today</button></div></section>`;
+  const monday = addDays(t, -((dateOf(t).getDay() + 6) % 7));
+  const periods = [["This week", monday > first ? monday : first, "Since Monday"], ["This month", `${t.slice(0, 8)}01` > first ? `${t.slice(0, 8)}01` : first, fmt(t, { month: "long" })], ["All time", first, `Since ${fmt(first, { day: "numeric", month: "long", year: "numeric" })}`]];
+  const period = ([name, from, sub]) => {
+    const c = countRange(from, t), pct = n => (100 * n / c.total).toFixed(2) + "%";
+    return `<div class="period"><div class="period-head"><h3>${name}</h3><span class="muted" style="font-size:13px">${sub}</span></div>
+      <div class="bar" role="img" aria-label="${c.sober} sober, ${c.drinking} drinking, ${c.none} not logged"><span class="s" style="width:${pct(c.sober)}"></span><span class="d" style="width:${pct(c.drinking)}"></span></div>
+      <div class="counts"><span class="s">${c.sober} sober</span><span class="d">${c.drinking} drank</span>${c.drinks ? `<span class="d">${plural(c.drinks, "drink")}</span>` : ""}${c.none ? `<span class="muted">${c.none} not logged</span>` : ""}</div></div>`;
+  };
+  const [pName, pFrom] = periods[state.drinkPeriod ?? 1], pc = countRange(pFrom, t), maxType = Math.max(1, ...Object.values(pc.byType));
+  const typeRows = DRINKS.filter(([type]) => pc.byType[type]).sort((a, b) => pc.byType[b[0]] - pc.byType[a[0]])
+    .map(([type, name]) => `<li><span>${name}</span><span class="bar"><span style="width:${(100 * pc.byType[type] / maxType).toFixed(1)}%"></span></span><b>${pc.byType[type]}</b></li>`).join("");
+  const drinksPanel = `<section class="glass panel"><div class="period-head"><h2>What you drank</h2>
+      <div class="seg">${periods.map(([name], i) => `<button data-act="dperiod" data-i="${i}" aria-pressed="${(state.drinkPeriod ?? 1) === i}">${name === "All time" ? name : name.replace("This w", "W").replace("This m", "M")}</button>`).join("")}</div></div>
+    ${typeRows ? `<p class="muted">${plural(pc.drinks, "drink")} on ${plural(pc.drinking, "drinking day")} ${pName.toLowerCase()}${pc.drinking ? `, about ${(pc.drinks / pc.drinking).toFixed(1)} per drinking day` : ""}.</p><ul class="types">${typeRows}</ul>`
+      : `<p class="muted">No drinks counted ${pName.toLowerCase()}. On a drinking day, use the + buttons to add what you drank.</p>`}
+  </section>`;
+  const s = currentStreak(), bs = longest("sober"), bd = longest("drinking");
+  const all = runs().slice(-8).reverse();
+  return `<section class="glass panel"><h2>Totals</h2>${periods.map(period).join("")}</section>
+  ${drinksPanel}
+  <section class="glass panel"><h2>Streaks</h2>
+    <div class="facts">
+      <div class="fact"><b>${s ? s.n : 0}</b><span>Current${s ? (s.type === "sober" ? " sober" : " drinking") : ""} streak</span></div>
+      <div class="fact"><b>${bs.n}</b><span>Longest sober streak</span></div>
+      <div class="fact"><b>${bd.n}</b><span>Longest drinking streak</span></div>
+    </div>
+    <div class="eyebrow">Recent streaks</div>
+    <ul class="runs">${all.map(r => `<li class="${r.type}"><span class="dot"></span><span>${LABEL[r.type]}, ${r.from === r.to ? shortDate(r.from) : `${shortDate(r.from)} to ${shortDate(r.to)}`}</span><b>${plural(r.n, "day")}${r.type === "drinking" && runDrinks(r) ? `, ${plural(runDrinks(r), "drink")}` : ""}</b></li>`).join("")}</ul>
+  </section>`;
+}
+
+function viewSettings() {
+  const hours = [0, 1, 2, 3, 4, 5, 6].map(h => `<option value="${h}" ${state.settings.boundary === h ? "selected" : ""}>${h === 0 ? "Midnight" : `${h} am`}</option>`).join("");
+  return `<section class="glass panel"><h2>Settings</h2>
+    <label class="field">A day ends at
+      <select class="input" data-act="boundary">${hours}</select>
+      <span>Anything you log before this time counts for the day before, so a late night stays with its evening.</span></label>
+    <div class="field">Appearance
+      <div class="seg">${[["auto", "Auto"], ["light", "Light"], ["dark", "Dark"]].map(([v, l]) => `<button data-act="theme" data-v="${v}" aria-pressed="${state.settings.theme === v}">${l}</button>`).join("")}</div></div>
+  </section>
+  <section class="glass panel"><h2>Backup</h2>
+    <p class="muted" style="max-width:62ch">Your days are saved on this device only. Save a backup file now and then, and use it to move to another phone or browser.</p>
+    <div class="row"><button class="btn primary" data-act="backup">Save backup file</button>
+      <label class="btn" style="cursor:pointer">Restore from backup<input type="file" accept="application/json,.json" data-act="restore" hidden></label></div>
+    <div><button class="btn small danger" data-act="wipe">Delete all days</button></div>
+  </section>`;
+}
+
+function renderSheet(enter) {
+  const root = document.getElementById("sheetRoot"), k = state.sheet;
+  if (!k) { root.innerHTML = ""; return }
+  root.innerHTML = `<div class="scrim" data-act="close"></div>
+  <aside class="sheet ${enter ? "enter" : ""}" role="dialog" aria-modal="true" aria-label="${longDate(k)}">
+    <div class="sheet-head"><div><div class="eyebrow">${k === todayKey() ? "Today" : k === addDays(todayKey(), -1) ? "Yesterday" : fmt(k, { year: "numeric" })}</div><h2>${longDate(k)}</h2></div><button class="btn ghost" data-act="close" aria-label="Close">✕</button></div>
+    <div class="sheet-body">
+      <span class="eyebrow">How was this day?</span>
+      ${choice(k)}
+      ${drinkPanel(k)}
+      ${status(k) ? `<button class="btn small" style="justify-self:start" data-act="clear" data-day="${k}">Mark as not logged</button>` : ""}
+    </div>
+  </aside>`;
+}
+
+/* ---------- events ---------- */
+document.addEventListener("click", e => {
+  const tab = e.target.closest("[data-tab]");
+  if (tab) { state.tab = tab.dataset.tab; render(); scrollTo(0, 0); return }
+  const el = e.target.closest("[data-act]");
+  if (!el) return;
+  const act = el.dataset.act, k = el.dataset.day;
+  if (act === "set") {
+    const v = el.dataset.v;
+    const wasSheet = !!state.sheet;
+    /* Drank keeps the day sheet open so the drinks can be added; Sober closes it. */
+    if (v === "sober") state.sheet = null;
+    setDay(k, v);
+    toast(`${k === todayKey() ? "Today" : longDate(k)} logged as ${v === "sober" ? "sober" : "a drinking day"}.`);
+    if (wasSheet && v === "sober") { const next = recentGaps()[0]; if (next && state.tab === "today") { state.sheet = next; renderSheet(true) } }
+  }
+  else if (act === "drink") addDrink(k, el.dataset.type, +el.dataset.d);
+  else if (act === "dperiod") { state.drinkPeriod = +el.dataset.i; render() }
+  else if (act === "clear") { state.sheet = null; setDay(k, null); toast(`${longDate(k)} is no longer logged.`) }
+  else if (act === "open") { state.sheet = k; renderSheet(true) }
+  else if (act === "close") { state.sheet = null; renderSheet() }
+  else if (act === "month") { const [y, m] = state.month.split("-").map(Number), d = new Date(y, m - 1 + +el.dataset.d, 1); state.month = keyOf(d).slice(0, 7); render() }
+  else if (act === "thismonth") { state.month = todayKey().slice(0, 7); render() }
+  else if (act === "theme") { state.settings.theme = el.dataset.v; save(); render() }
+  else if (act === "backup") saveBackup();
+  else if (act === "wipe") {
+    if (!Object.keys(state.days).length) { toast("There are no days to delete."); return }
+    /* Two taps instead of confirm(), which isn't shown everywhere. */
+    if (el.dataset.armed) { state.days = {}; save(); render(); toast("All days deleted.") }
+    else { el.dataset.armed = "1"; el.textContent = "Tap again to delete every day"; toast("This can't be undone. Save a backup first if you might want them back.") }
+  }
+});
+document.addEventListener("change", e => {
+  const act = e.target.dataset.act;
+  if (act === "boundary") { state.settings.boundary = +e.target.value; save(); render(); toast("Saved. Today's date follows the new time.") }
+  else if (act === "restore" && e.target.files[0]) restoreBackup(e.target.files[0]);
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape" && state.sheet) { state.sheet = null; renderSheet() } });
+
+function saveBackup() {
+  const blob = new Blob([JSON.stringify({ app: "days-tracker", version: 1, savedAt: new Date().toISOString(), settings: state.settings, days: state.days }, null, 1)], { type: "application/json" });
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `days-backup-${todayKey()}.json`;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  toast("Backup file saved. Keep it somewhere safe, like your cloud drive.");
+}
+async function restoreBackup(file) {
+  try {
+    const data = JSON.parse(await file.text());
+    if (data?.app !== "days-tracker" || typeof data.days !== "object") throw new Error("not a backup");
+    state.days = data.days; Object.assign(state.settings, data.settings || {}); save(); render();
+    toast(`Restored ${plural(Object.keys(state.days).length, "day")}.`);
+  } catch (e) { toast("That file isn't a Days backup. Pick a file saved with Save backup file.") }
+}
+
+/* Re-render when the app comes back to the front, so "today" moves on after midnight (or the boundary hour). */
+document.addEventListener("visibilitychange", () => { if (!document.hidden && todayKey() !== lastToday) render() });
+
+load();
+render();
+</script>
+
+<script>if ("serviceWorker" in navigator) {
+  // When an update takes over from an older version, reload once so it shows straight away.
+  let hadController = !!navigator.serviceWorker.controller, reloaded = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => { if (hadController && !reloaded) { reloaded = true; location.reload() } hadController = true });
+  navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).catch(() => {});
+}</script>
+</body>
+</html>
