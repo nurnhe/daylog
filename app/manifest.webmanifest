@@ -2,7 +2,7 @@
   "name": "Days",
   "short_name": "Days",
   "description": "Log sober and drinking days and see your streak.",
-  "id": "/daylog/",
+  "id": "/daylog/app/",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
